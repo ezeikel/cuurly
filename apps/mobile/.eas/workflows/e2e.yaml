@@ -1,0 +1,37 @@
+name: E2E Tests
+
+on:
+  pull_request: {}
+  push:
+    branches:
+      - main
+
+jobs:
+  build-ios:
+    name: Build iOS App
+    steps:
+      - eas/build:
+          inputs:
+            platform: ios
+            profile: development
+
+  build-android:
+    name: Build Android App
+    steps:
+      - eas/build:
+          inputs:
+            platform: android
+            profile: development
+
+  e2e:
+    name: Run E2E Tests
+    needs: [build-ios, build-android]
+    steps:
+      - eas/maestro_test:
+          inputs:
+            build_id: ${{ jobs.build-ios.outputs.build_id }}
+            flow_path: "./e2e/*.yaml"
+      - eas/maestro_test:
+          inputs:
+            build_id: ${{ jobs.build-android.outputs.build_id }}
+            flow_path: "./e2e/*.yaml"

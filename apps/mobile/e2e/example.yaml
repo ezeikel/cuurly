@@ -1,0 +1,4 @@
+appId: com.chewybytes.cuurly
+---
+- launchApp
+- assertVisible: "Home"

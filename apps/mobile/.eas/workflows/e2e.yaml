@@ -13,7 +13,7 @@ jobs:
       - eas/build:
           inputs:
             platform: ios
-            profile: development
+            profile: preview
 
   build-android:
     name: Build Android App
@@ -21,7 +21,7 @@ jobs:
       - eas/build:
           inputs:
             platform: android
-            profile: development
+            profile: preview
 
   e2e:
     name: Run E2E Tests

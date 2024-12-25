@@ -1,0 +1,9 @@
+{
+  "apps/mobile": "0.1.0",
+  "apps/web": "0.1.0",
+  "packages/db": "0.1.0",
+  "configs/eslint-config": "0.1.0",
+  "configs/prettier-config": "0.1.0",
+  "configs/tsconfig": "0.1.0",
+  "configs/sentry-config": "0.1.0"
+}

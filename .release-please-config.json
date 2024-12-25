@@ -1,0 +1,43 @@
+{
+  "bootstrap-sha": "main",
+  "release-type": "node",
+  "bump-minor-pre-major": true,
+  "bump-patch-for-minor-pre-major": true,
+  "packages": {
+    "apps/mobile": {
+      "package-name": "@cuurly/mobile",
+      "changelog-path": "apps/mobile/CHANGELOG.md",
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "apps/mobile/app.config.ts",
+          "jsonpath": "$.expo.version"
+        }
+      ]
+    },
+    "apps/web": {
+      "package-name": "@cuurly/web",
+      "changelog-path": "apps/web/CHANGELOG.md"
+    },
+    "packages/db": {
+      "package-name": "@cuurly/db",
+      "changelog-path": "packages/db/CHANGELOG.md"
+    },
+    "configs/eslint-config": {
+      "package-name": "@cuurly/eslint-config",
+      "changelog-path": "configs/eslint-config/CHANGELOG.md"
+    },
+    "configs/prettier-config": {
+      "package-name": "@cuurly/prettier-config",
+      "changelog-path": "configs/prettier-config/CHANGELOG.md"
+    },
+    "configs/tsconfig": {
+      "package-name": "@cuurly/tsconfig",
+      "changelog-path": "configs/tsconfig/CHANGELOG.md"
+    },
+    "configs/sentry-config": {
+      "package-name": "@cuurly/sentry-config",
+      "changelog-path": "configs/sentry-config/CHANGELOG.md"
+    }
+  }
+}

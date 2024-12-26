@@ -4,10 +4,10 @@ export default {
     slug: "cuurly",
     owner: "chewybytes",
     orientation: "portrait",
-    icon: "./assets/images/icon.png",
-    scheme: "myapp",
     userInterfaceStyle: "automatic",
     newArchEnabled: true,
+    icon: "./assets/images/icon.png",
+    scheme: "cuurly",
     ios: {
       supportsTablet: true,
       bundleIdentifier: "com.chewybytes.cuurly",
@@ -33,6 +33,14 @@ export default {
           imageWidth: 200,
           resizeMode: "contain",
           backgroundColor: "#ffffff",
+        },
+      ],
+      [
+        "@sentry/react-native/expo",
+        {
+          url: "https://sentry.io/",
+          project: "cuurly-app",
+          organization: "chewybytes",
         },
       ],
     ],

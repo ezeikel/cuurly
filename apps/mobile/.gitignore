@@ -40,3 +40,5 @@ ios/
 android/
 
 app-example
+
+.env.local

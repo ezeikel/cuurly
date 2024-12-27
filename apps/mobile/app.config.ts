@@ -8,6 +8,12 @@ export default {
     newArchEnabled: true,
     icon: "./assets/images/icon.png",
     scheme: "cuurly",
+    updates: {
+      url: "https://u.expo.dev/682b1d91-8787-4e46-a507-1f543707fc9d",
+    },
+    runtimeVersion: {
+      policy: "appVersion",
+    },
     ios: {
       supportsTablet: true,
       bundleIdentifier: "com.chewybytes.cuurly",

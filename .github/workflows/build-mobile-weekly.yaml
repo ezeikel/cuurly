@@ -1,0 +1,57 @@
+name: Weekly Mobile Build
+
+on:
+  schedule:
+    # runs at 02:00 AM every Monday morning
+    - cron: "0 2 * * 1"
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: EAS Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🏗 Setup repo
+        uses: actions/checkout@v4
+
+      - name: 🏗 Setup pnpm
+        uses: pnpm/action-setup@v2
+
+      - name: 🏗 Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - name: 🏗 Setup EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 📦 Install dependencies
+        run: pnpm install
+
+      - name: 🔍 Get Version
+        id: version
+        working-directory: apps/mobile
+        run: |
+          chmod +x ./scripts/get-app-version.sh
+          VERSION=$(./scripts/get-app-version.sh)
+          echo "number=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: 🏗 Build iOS & Android
+        working-directory: apps/mobile
+        id: build
+        run: |
+          IOS_BUILD=$(eas build --platform ios --profile preview --non-interactive --json --wait)
+          ANDROID_BUILD=$(eas build --platform android --profile preview --non-interactive --json --wait)
+          echo "ios_build_id=$(echo $IOS_BUILD | jq -r '.id')" >> $GITHUB_OUTPUT
+          echo "android_build_id=$(echo $ANDROID_BUILD | jq -r '.id')" >> $GITHUB_OUTPUT
+
+      - name: 🔍 Get Build Info
+        id: build_info
+        working-directory: apps/mobile
+        run: |
+          chmod +x ./scripts/get-build-info.sh
+          ./scripts/get-build-info.sh "all" "${{ steps.build.outputs.ios_build_id }}" "${{ steps.build.outputs.android_build_id }}"

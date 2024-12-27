@@ -1,0 +1,109 @@
+name: Mobile App Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: "Build platform"
+        required: true
+        type: choice
+        options:
+          - all
+          - ios
+          - android
+      build_profile:
+        description: "Build profile"
+        required: true
+        type: choice
+        options:
+          - development
+          - preview
+          - beta
+          - production
+        default: "preview"
+
+jobs:
+  build:
+    name: EAS Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🏗 Setup repo
+        uses: actions/checkout@v4
+
+      - name: 🏗 Setup pnpm
+        uses: pnpm/action-setup@v2
+
+      - name: 🏗 Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - name: 🏗 Setup EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 📦 Install dependencies
+        run: pnpm install
+
+      - name: 🔍 Get Version
+        id: version
+        working-directory: apps/mobile
+        run: |
+          chmod +x ./scripts/get-app-version.sh
+          VERSION=$(./scripts/get-app-version.sh)
+          echo "number=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: 🏗 Build iOS
+        if: ${{ inputs.platform == 'ios' || inputs.platform == 'all' }}
+        id: ios_build
+        working-directory: apps/mobile
+        run: |
+          BUILD=$(eas build --platform ios --profile ${{ inputs.build_profile }} --non-interactive --json --wait)
+          echo "build_id=$(echo $BUILD | jq -r '.id')" >> $GITHUB_OUTPUT
+
+      - name: 🏗 Build Android
+        if: ${{ inputs.platform == 'android' || inputs.platform == 'all' }}
+        id: android_build
+        working-directory: apps/mobile
+        run: |
+          BUILD=$(eas build --platform android --profile ${{ inputs.build_profile }} --non-interactive --json --wait)
+          echo "build_id=$(echo $BUILD | jq -r '.id')" >> $GITHUB_OUTPUT
+
+      - name: 🔍 Get Build Info
+        if:
+          ${{ inputs.build_profile == 'development' || inputs.build_profile ==
+          'preview' }}
+        id: build_info
+        working-directory: apps/mobile
+        run: |
+          chmod +x ./scripts/get-build-info.sh
+          ./scripts/get-build-info.sh "${{ inputs.platform }}" "${{ steps.ios_build.outputs.build_id }}" "${{ steps.android_build.outputs.build_id }}"
+
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          channel-id: "C0848MA5ERY"
+          payload: |
+            {
+              "text": "New Mobile Build(s) Available! 📱",
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "📱 New Mobile Build(s) Available!"
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "${{ steps.slack_message.outputs.text }}"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}

@@ -51,7 +51,7 @@
     },
     "beta": {
       "extends": "production",
-      "distribution": "internal",
+      "distribution": "store",
       "env": {
         "EXPO_PUBLIC_ENVIRONMENT": "beta"
       },

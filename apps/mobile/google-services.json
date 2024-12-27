@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "522184879358",
+    "project_id": "cuurly-dev",
+    "storage_bucket": "cuurly-dev.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:522184879358:android:f8f6d09c556a6c0e6a09af",
+        "android_client_info": {
+          "package_name": "com.chewybytes.cuurly"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB6QJB6sMFe6DKNml8roNCEK43hKgqee00"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

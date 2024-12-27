@@ -5,7 +5,6 @@ export default {
     owner: "chewybytes",
     orientation: "portrait",
     userInterfaceStyle: "automatic",
-    newArchEnabled: true,
     icon: "./assets/images/icon.png",
     scheme: "cuurly",
     updates: {
@@ -15,8 +14,9 @@ export default {
       policy: "appVersion",
     },
     ios: {
-      supportsTablet: true,
       bundleIdentifier: "com.chewybytes.cuurly",
+      supportsTablet: true,
+      googleServicesFile: "./GoogleService-Info.plist",
     },
     android: {
       package: "com.chewybytes.cuurly",
@@ -24,11 +24,7 @@ export default {
         foregroundImage: "./assets/images/adaptive-icon.png",
         backgroundColor: "#ffffff",
       },
-    },
-    web: {
-      bundler: "metro",
-      output: "static",
-      favicon: "./assets/images/favicon.png",
+      googleServicesFile: "./google-services.json",
     },
     plugins: [
       "expo-router",
@@ -49,6 +45,23 @@ export default {
           organization: "chewybytes",
         },
       ],
+      [
+        "expo-build-properties",
+        {
+          ios: {
+            useFrameworks: "static",
+            deploymentTarget: "15.1",
+          },
+          android: {
+            compileSdkVersion: 34,
+            targetSdkVersion: 34,
+            buildToolsVersion: "34.0.0",
+            enableProguardInReleaseBuilds: true,
+            enableShrinkResourcesInReleaseBuilds: true,
+          },
+        },
+      ],
+      "@react-native-firebase/app",
     ],
     experiments: {
       typedRoutes: true,

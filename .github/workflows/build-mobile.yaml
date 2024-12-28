@@ -82,9 +82,35 @@ jobs:
           chmod +x ./scripts/get-build-info.sh
           ./scripts/get-build-info.sh "${{ inputs.platform }}" "${{ steps.ios_build.outputs.build_id }}" "${{ steps.android_build.outputs.build_id }}"
 
+      - name: 📢 Prepare Slack Message
+        id: slack_message
+        run: |
+          VERSION_TEXT="*Build Profile:* ${{ inputs.build_profile }}\n*Version:* ${{ steps.version.outputs.number }}\n\n"
+
+          if [[ "${{ inputs.build_profile }}" == "beta" ]]; then
+            echo "text<<EOF" >> $GITHUB_OUTPUT
+            echo "${VERSION_TEXT}Build will be available in:\n• iOS: TestFlight\n• Android: Play Store Internal Testing" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          elif [[ "${{ inputs.build_profile }}" == "production" ]]; then
+            echo "text<<EOF" >> $GITHUB_OUTPUT
+            echo "${VERSION_TEXT}Build will be available in:\n• iOS: App Store\n• Android: Play Store" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            if [[ "${{ inputs.platform }}" == "ios" || "${{ inputs.platform }}" == "all" ]]; then
+              IOS_TEXT="*iOS Build* (${{ steps.build_info.outputs.ios_build_number }}):\n${{ steps.build_info.outputs.ios_url }}"
+            fi
+            if [[ "${{ inputs.platform }}" == "android" || "${{ inputs.platform }}" == "all" ]]; then
+              ANDROID_TEXT="\n\n*Android Build* (${{ steps.build_info.outputs.android_build_number }}):\n${{ steps.build_info.outputs.android_url }}"
+            fi
+            echo "text<<EOF" >> $GITHUB_OUTPUT
+            echo "${VERSION_TEXT}${IOS_TEXT}${ANDROID_TEXT}" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 📢 Notify Slack
         uses: slackapi/slack-github-action@v1.24.0
         with:
-          channel-id: "C0848MA5ERY"
+          channel-id: "C086PQ89GBC"
           payload: |
             {
               "text": "New Mobile Build(s) Available! 📱",

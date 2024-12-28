@@ -55,3 +55,54 @@ jobs:
         run: |
           chmod +x ./scripts/get-build-info.sh
           ./scripts/get-build-info.sh "all" "${{ steps.build.outputs.ios_build_id }}" "${{ steps.build.outputs.android_build_id }}"
+
+      - name: 📢 Notify Slack
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          channel-id: "C086PQ89GBC"
+          payload: |
+            {
+              "text": "New Weekly Mobile Builds Available! 📱",
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "📱 New Weekly Mobile Builds Available!"
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Build Profile:* preview\n*Version:* ${{ steps.version.outputs.number }}"
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*iOS Build* (${{ steps.build_info.outputs.ios_build_number }}):\n${{ steps.build_info.outputs.ios_url }}"
+                  },
+                  "accessory": {
+                    "type": "image",
+                    "image_url": "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${{ steps.build_info.outputs.ios_url }}",
+                    "alt_text": "QR Code for iOS Install"
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Android Build* (${{ steps.build_info.outputs.android_build_number }}):\n${{ steps.build_info.outputs.android_url }}"
+                  },
+                  "accessory": {
+                    "type": "image",
+                    "image_url": "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${{ steps.build_info.outputs.android_url }}",
+                    "alt_text": "QR Code for Android Install"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}

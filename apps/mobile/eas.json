@@ -40,14 +40,14 @@
       },
       "autoIncrement": false
     },
-    "production": {
-      "extends": "base",
+    "alpha": {
+      "extends": "production",
       "distribution": "store",
       "env": {
-        "EXPO_PUBLIC_ENVIRONMENT": "production"
+        "EXPO_PUBLIC_ENVIRONMENT": "alpha"
       },
       "autoIncrement": true,
-      "channel": "production"
+      "channel": "alpha"
     },
     "beta": {
       "extends": "production",
@@ -57,7 +57,38 @@
       },
       "autoIncrement": true,
       "channel": "beta"
+    },
+    "production": {
+      "extends": "base",
+      "distribution": "store",
+      "env": {
+        "EXPO_PUBLIC_ENVIRONMENT": "production"
+      },
+      "autoIncrement": true,
+      "channel": "production"
     }
   },
-  "submit": {}
+  "submit": {
+    "alpha": {
+      "ios": {
+        "appleId": "ezeikelpemberton@gmail.com",
+        "ascAppId": "6739955964",
+        "appleTeamId": "8XH9K62AU4"
+      }
+    },
+    "beta": {
+      "ios": {
+        "appleId": "ezeikelpemberton@gmail.com",
+        "ascAppId": "6739955964",
+        "appleTeamId": "8XH9K62AU4"
+      }
+    },
+    "production": {
+      "ios": {
+        "appleId": "ezeikelpemberton@gmail.com",
+        "ascAppId": "6739955964",
+        "appleTeamId": "8XH9K62AU4"
+      }
+    }
+  }
 }

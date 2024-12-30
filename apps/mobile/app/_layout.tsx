@@ -11,6 +11,7 @@ import { useEffect } from "react";
 import "react-native-reanimated";
 import { useColorScheme } from "react-native";
 import * as Sentry from "@sentry/react-native";
+import usePushNotifications from "@/hooks/usePushNotifications";
 
 // TODO: use sentry config
 Sentry.init({
@@ -25,6 +26,7 @@ const RootLayout = () => {
   const [loaded] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
+  const { isInitialised } = usePushNotifications();
 
   useEffect(() => {
     if (loaded) {
@@ -32,7 +34,7 @@ const RootLayout = () => {
     }
   }, [loaded]);
 
-  if (!loaded) {
+  if (!loaded || !isInitialised) {
     return null;
   }
 

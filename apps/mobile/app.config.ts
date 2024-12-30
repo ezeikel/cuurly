@@ -17,6 +17,15 @@ export default {
       bundleIdentifier: "com.chewybytes.cuurly",
       supportsTablet: true,
       googleServicesFile: "./GoogleService-Info.plist",
+      entitlements: {
+        "aps-environment":
+          process.env.EXPO_PUBLIC_ENVIRONMENT === "development"
+            ? "development"
+            : "production",
+      },
+      infoPlist: {
+        UIBackgroundModes: ["remote-notification"],
+      },
     },
     android: {
       package: "com.chewybytes.cuurly",
@@ -62,6 +71,7 @@ export default {
         },
       ],
       "@react-native-firebase/app",
+      "@react-native-firebase/messaging",
     ],
     experiments: {
       typedRoutes: true,

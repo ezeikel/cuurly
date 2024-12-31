@@ -1,8 +1,10 @@
-/* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useEffect, useState } from "react";
 import { Alert, Platform, PermissionsAndroid, Clipboard } from "react-native";
-import messaging from "@react-native-firebase/messaging";
+import messaging, {
+  FirebaseMessagingTypes,
+} from "@react-native-firebase/messaging";
+import notifee from "@notifee/react-native";
 import logger from "@/utils/logger";
 
 // TODO: Implement AsyncStorage for token persistence
@@ -47,6 +49,26 @@ const usePushNotifications = () => {
     return true; // auto granted for Android API < 33 (Android < 13)
   };
 
+  const onMessageReceived = async (
+    message: FirebaseMessagingTypes.RemoteMessage,
+  ) => {
+    await notifee.displayNotification({
+      title: message.notification?.title ?? "",
+      body: message.notification?.body ?? "",
+      android: {
+        channelId: "default",
+        actions: [
+          {
+            title: "Mark as read",
+            pressAction: {
+              id: "read",
+            },
+          },
+        ],
+      },
+    });
+  };
+
   useEffect(() => {
     const initialize = async () => {
       try {
@@ -89,7 +111,6 @@ const usePushNotifications = () => {
             style: "cancel",
           },
         ]);
-        console.log("FCM Token", token);
         // TODO: Implement token storage
         // await AsyncStorage.setItem(FCM_TOKEN_STORAGE_KEY, token);
         // await registerDevice.mutateAsync({ fcmToken: token });
@@ -104,33 +125,17 @@ const usePushNotifications = () => {
       }
 
       try {
-        messaging().setBackgroundMessageHandler(async (remoteMessage) => {
-          logger.debug("Background Message", {
-            additionalContext: {
-              remoteMessage,
-            },
-          });
+        messaging().setBackgroundMessageHandler(async (message) => {
+          await onMessageReceived(message);
         });
 
-        const unsubscribeForeground = messaging().onMessage(
-          async (remoteMessage) => {
-            // TODO: replace with notifee
-            logger.debug("Foreground Message", {
-              additionalContext: {
-                remoteMessage,
-              },
-            });
-            Alert.alert(
-              remoteMessage.notification?.title ?? "",
-              remoteMessage.notification?.body,
-            );
-          },
-        );
+        const unsubscribeForeground = messaging().onMessage(async (message) => {
+          await onMessageReceived(message);
+        });
 
         const unsubscribeTokenRefresh = messaging().onTokenRefresh(
           async (newToken) => {
             try {
-              console.log("New FCM Token:", newToken); // Temporary: log token for testing
               // TODO: Implement token refresh handling
               // const oldToken = await AsyncStorage.getItem(FCM_TOKEN_STORAGE_KEY);
               // await AsyncStorage.setItem(FCM_TOKEN_STORAGE_KEY, newToken);

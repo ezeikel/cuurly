@@ -1,6 +1,6 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["driverAdapters", "tracing"]
+  previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
@@ -49,6 +49,8 @@ model Media {
   Post     Post?     @relation(fields: [postId], references: [id])
   postId   String?
   Profile  Profile?
+
+  @@map("media")
 }
 
 model Profile {
@@ -60,6 +62,8 @@ model Profile {
   hairType   HairType?
   hairLength HairLength?
   User       User?
+
+  @@map("profiles")
 }
 
 model Comment {
@@ -139,6 +143,18 @@ model User {
   deletedAt   DateTime?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+  DeviceToken Device[]
 
   @@map("users")
+}
+
+model Device {
+  id        String   @id @default(uuid())
+  token     String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("devices")
 }

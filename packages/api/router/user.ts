@@ -1,29 +1,16 @@
-import { z } from "zod";
+import { db } from "@cuurly/db";
 import { publicProcedure } from "../trpc";
 
 export default {
-  current: publicProcedure.query(async ({ ctx }) => {
-    if (!ctx.userId) return null;
+  current: publicProcedure.query(
+    async () =>
+      // if (!ctx.userId) return null;
 
-    return ctx.db.user.findUnique({
-      where: { id: ctx.userId },
-    });
-  }),
-  update: publicProcedure
-    .input(
-      z.object({
-        name: z.string().optional(),
-        username: z.string().optional(),
-        email: z.string().email().optional(),
-        // ... other fields
-      }),
-    )
-    .mutation(async ({ ctx, input }) => {
-      if (!ctx.userId) throw new Error("Not authenticated");
+      // TODO: add userId to trpc context
+      db.user.findFirst(),
 
-      return ctx.db.user.update({
-        where: { id: ctx.userId },
-        data: input,
-      });
-    }),
+    // return db.user.findFirst({
+    //   where: { id: ctx.userId },
+    // });
+  ),
 };

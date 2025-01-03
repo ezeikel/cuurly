@@ -23,6 +23,7 @@
   "dependencies": {
     "@auth/core": "^0.37.4",
     "@cuurly/db": "workspace:*",
+    "@cuurly/api": "workspace:*",
     "@cuurly/sentry-config": "workspace:*",
     "@fortawesome/fontawesome-svg-core": "^6.6.0",
     "@fortawesome/free-brands-svg-icons": "^6.6.0",
@@ -60,7 +61,8 @@
     "react-textarea-autosize": "^8.5.6",
     "react-toastify": "^10.0.6",
     "video.js": "^8.19.1",
-    "yup": "^1.4.0"
+    "yup": "^1.4.0",
+    "@trpc/server": "11.0.0-rc.682"
   },
   "devDependencies": {
     "@cuurly/eslint-config": "workspace:*",

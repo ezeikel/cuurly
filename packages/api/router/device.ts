@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { db } from "@cuurly/db";
 import { publicProcedure } from "../trpc";
 
 export default {
@@ -10,14 +11,17 @@ export default {
         testUserId: z.string().optional(),
       }),
     )
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     .mutation(async ({ ctx, input }) => {
-      const userId = ctx.userId || input.testUserId;
+      // TODO: add userId to trpc context
+      // const userId = ctx.userId || input.testUserId;
+      const userId = input.testUserId;
 
       if (!userId) {
         throw new Error("No user ID provided");
       }
 
-      const existingDevice = await ctx.db.device.findFirst({
+      const existingDevice = await db.device.findFirst({
         where: {
           userId,
           token: input.fcmToken,
@@ -28,7 +32,7 @@ export default {
         return existingDevice;
       }
 
-      return ctx.db.device.create({
+      return db.device.create({
         data: {
           token: input.fcmToken,
           userId,

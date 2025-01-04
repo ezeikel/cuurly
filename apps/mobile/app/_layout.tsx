@@ -11,7 +11,8 @@ import { useEffect } from "react";
 import "react-native-reanimated";
 import { useColorScheme } from "react-native";
 import * as Sentry from "@sentry/react-native";
-import usePushNotifications from "@/hooks/usePushNotifications";
+import { TRPCProvider } from "@/utils/api";
+import PushNotificationInitialiser from "@/components/PushNotificationInitialiser";
 
 // TODO: use sentry config
 Sentry.init({
@@ -26,7 +27,6 @@ const RootLayout = () => {
   const [loaded] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
-  const { isInitialised } = usePushNotifications();
 
   useEffect(() => {
     if (loaded) {
@@ -34,18 +34,21 @@ const RootLayout = () => {
     }
   }, [loaded]);
 
-  if (!loaded || !isInitialised) {
+  if (!loaded) {
     return null;
   }
 
   return (
-    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <TRPCProvider>
+      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="+not-found" />
+        </Stack>
+        <StatusBar style="auto" />
+        <PushNotificationInitialiser />
+      </ThemeProvider>
+    </TRPCProvider>
   );
 };
 

@@ -9,6 +9,8 @@ import logger from "@/utils/logger";
 import { api } from "@/utils/api";
 
 const FCM_TOKEN_STORAGE_KEY = "@fcm_token";
+// TODO: remove this after authentication is implemented
+const TEST_USER_ID = "873e5b41-825a-410b-852c-7384994c5dd8";
 
 const usePushNotifications = () => {
   const [isInitialised, setisInitialised] = useState(false);
@@ -71,7 +73,10 @@ const usePushNotifications = () => {
       try {
         const cachedToken = await AsyncStorage.getItem(FCM_TOKEN_STORAGE_KEY);
         if (cachedToken) {
-          await registerDevice.mutateAsync({ fcmToken: cachedToken });
+          await registerDevice.mutateAsync({
+            fcmToken: cachedToken,
+            testUserId: TEST_USER_ID,
+          });
         }
       } catch (error) {
         logger.error("Failed to load cached FCM token", error as Error, {
@@ -92,9 +97,6 @@ const usePushNotifications = () => {
 
       try {
         const token = await messaging().getToken();
-
-        // TODO: remove this after authentication is implemented
-        const TEST_USER_ID = "873e5b41-825a-410b-852c-7384994c5dd8";
 
         await registerDevice.mutateAsync({
           fcmToken: token,
@@ -117,7 +119,10 @@ const usePushNotifications = () => {
         ]);
 
         await AsyncStorage.setItem(FCM_TOKEN_STORAGE_KEY, token);
-        await registerDevice.mutateAsync({ fcmToken: token });
+        await registerDevice.mutateAsync({
+          fcmToken: token,
+          testUserId: TEST_USER_ID,
+        });
       } catch (error) {
         logger.error("Failed to get FCM token", error as Error, {
           additionalContext: {

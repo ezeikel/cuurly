@@ -35,7 +35,11 @@ jobs:
           cache: "pnpm"
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: |
+          # Increase max argument size limit
+          sysctl -w kernel.pid_max=100000
+          # Install dependencies with increased memory
+          NODE_OPTIONS="--max-old-space-size=4096" pnpm install --frozen-lockfile
 
       - name: Lint
         run: pnpm lint

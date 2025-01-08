@@ -26,7 +26,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "test:e2e": "maestro test ./e2e/*.yaml"
+    "test:e2e": "maestro test ./e2e/*.yaml",
+    "build": "echo 'No build step required for mobile app'"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.0.2",

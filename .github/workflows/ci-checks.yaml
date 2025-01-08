@@ -27,6 +27,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: "pnpm"
 
       - name: Install pnpm
         uses: pnpm/action-setup@v2
@@ -34,18 +35,18 @@ jobs:
           version: latest
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
-      - name: Type Check
-        run: pnpm typecheck
-
-      - name: Format Check
-        run: pnpm format
-
-      - name: Lint Check
+      - name: Lint
         run: pnpm lint
 
-      - name: Run Tests
+      - name: Format
+        run: pnpm format
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Test
         run: pnpm test
 
       - name: Build

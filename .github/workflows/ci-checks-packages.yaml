@@ -1,0 +1,85 @@
+name: Packages CI Checks
+
+on:
+  pull_request:
+    paths:
+      - "packages/**"
+      - "configs/**"
+  push:
+    branches: ["main"]
+    paths:
+      - "packages/**"
+      - "configs/**"
+  merge_group:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+env:
+  FONTAWESOME_NPM_AUTH_TOKEN: ${{ secrets.FONTAWESOME_NPM_AUTH_TOKEN }}
+
+jobs:
+  packages-ci:
+    name: Packages CI
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: latest
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: |
+          pnpm -F "@cuurly/db" lint
+          pnpm -F "@cuurly/eslint-config" lint
+          pnpm -F "@cuurly/prettier-config" lint
+          pnpm -F "@cuurly/tsconfig" lint
+          pnpm -F "@cuurly/sentry-config" lint
+
+      - name: Typecheck
+        run: |
+          pnpm -F "@cuurly/db" typecheck
+          pnpm -F "@cuurly/eslint-config" typecheck
+          pnpm -F "@cuurly/prettier-config" typecheck
+          pnpm -F "@cuurly/tsconfig" typecheck
+          pnpm -F "@cuurly/sentry-config" typecheck
+
+      - name: Test
+        run: |
+          pnpm -F "@cuurly/db" test
+          pnpm -F "@cuurly/eslint-config" test
+          pnpm -F "@cuurly/prettier-config" test
+          pnpm -F "@cuurly/tsconfig" test
+          pnpm -F "@cuurly/sentry-config" test
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: packages-test-results
+          path: |
+            packages/*/coverage/
+            configs/*/coverage/
+          retention-days: 7
+
+      - name: Build
+        run: |
+          pnpm -F "@cuurly/db" build
+          pnpm -F "@cuurly/eslint-config" build
+          pnpm -F "@cuurly/prettier-config" build
+          pnpm -F "@cuurly/tsconfig" build
+          pnpm -F "@cuurly/sentry-config" build

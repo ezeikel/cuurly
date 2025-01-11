@@ -1,10 +1,17 @@
-name: CI Checks
+name: Mobile CI Checks
 
 on:
   pull_request:
-    branches: ["*"]
+    paths:
+      - "apps/mobile/**"
+      - "packages/**"
+      - "configs/**"
   push:
     branches: ["main"]
+    paths:
+      - "apps/mobile/**"
+      - "packages/**"
+      - "configs/**"
   merge_group:
 
 concurrency:
@@ -15,8 +22,8 @@ env:
   FONTAWESOME_NPM_AUTH_TOKEN: ${{ secrets.FONTAWESOME_NPM_AUTH_TOKEN }}
 
 jobs:
-  ci:
-    name: CI
+  mobile-ci:
+    name: Mobile CI
     runs-on: ubuntu-latest
 
     steps:
@@ -35,33 +42,29 @@ jobs:
           cache: "pnpm"
 
       - name: Install dependencies
-        run: |
-          # Increase max argument size limit
-          sysctl -w kernel.pid_max=100000
-          # Install dependencies with increased memory
-          NODE_OPTIONS="--max-old-space-size=4096" pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --filter mobile...
 
       - name: Lint
-        run: pnpm lint
+        run: pnpm --filter mobile lint
 
       - name: Format
-        run: pnpm format
+        run: pnpm --filter mobile format
 
       - name: Typecheck
-        run: pnpm typecheck
+        run: pnpm --filter mobile typecheck
 
       - name: Test
-        run: pnpm test
+        run: pnpm --filter mobile test
 
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: test-results
+          name: mobile-test-results
           path: |
-            coverage/
-            test-results/
+            apps/mobile/coverage/
+            apps/mobile/test-results/
           retention-days: 7
 
       - name: Build
-        run: pnpm build
+        run: pnpm -F mobile build

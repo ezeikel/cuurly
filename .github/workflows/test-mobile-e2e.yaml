@@ -2,9 +2,16 @@ name: Mobile E2E Tests
 
 on:
   pull_request:
-    branches: ["*"]
+    paths:
+      - "apps/mobile/**"
+      - "packages/**"
+      - "configs/**"
   push:
     branches: ["main"]
+    paths:
+      - "apps/mobile/**"
+      - "packages/**"
+      - "configs/**"
   merge_group:
 
 concurrency:
@@ -53,22 +60,22 @@ jobs:
           version: latest
 
       - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile
+        run: pnpm install --frozen-lockfile --filter mobile...
 
       - name: Install Playwright Browsers
         run: pnpm dlx playwright install --with-deps
 
       - name: Generate Prisma Client
-        run: pnpm db:generate
+        run: pnpm --filter @cuurly/db db:generate
 
       - name: Run database migrations
-        run: pnpm -F db db:migrate:deploy
+        run: pnpm --filter @cuurly/db db:migrate:deploy
 
       # - name: Seed database
       #   run: pnpm db:seed
 
       - name: Run E2E tests
-        run: pnpm e2e:ci
+        run: pnpm --filter mobile e2e:ci
 
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}

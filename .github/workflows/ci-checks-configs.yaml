@@ -1,0 +1,77 @@
+name: Configs CI Checks
+
+on:
+  pull_request:
+    paths:
+      - "configs/**"
+  push:
+    branches: ["main"]
+    paths:
+      - "configs/**"
+  merge_group:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+env:
+  FONTAWESOME_NPM_AUTH_TOKEN: ${{ secrets.FONTAWESOME_NPM_AUTH_TOKEN }}
+
+jobs:
+  configs-ci:
+    name: Configs CI
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: latest
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint Configs
+        run: |
+          pnpm -F "@cuurly/eslint-config" lint
+          pnpm -F "@cuurly/prettier-config" lint
+          pnpm -F "@cuurly/tsconfig" lint
+          pnpm -F "@cuurly/sentry-config" lint
+
+      - name: Typecheck Configs
+        run: |
+          pnpm -F "@cuurly/eslint-config" typecheck
+          pnpm -F "@cuurly/prettier-config" typecheck
+          pnpm -F "@cuurly/tsconfig" typecheck
+          pnpm -F "@cuurly/sentry-config" typecheck
+
+      - name: Test Configs
+        run: |
+          pnpm -F "@cuurly/eslint-config" test
+          pnpm -F "@cuurly/prettier-config" test
+          pnpm -F "@cuurly/tsconfig" test
+          pnpm -F "@cuurly/sentry-config" test
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: configs-test-results
+          path: configs/*/coverage/
+          retention-days: 7
+
+      - name: Build Configs
+        run: |
+          pnpm -F "@cuurly/eslint-config" build
+          pnpm -F "@cuurly/prettier-config" build
+          pnpm -F "@cuurly/tsconfig" build
+          pnpm -F "@cuurly/sentry-config" build

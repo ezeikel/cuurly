@@ -9,12 +9,12 @@ This monorepo uses [Turborepo](https://turbo.build/) and contains:
 ### Apps
 
 - `web`: Next.js web application
-- `admin`: Admin dashboard *(coming soon)*
-- `mobile`: React Native app *(coming soon)*
+- `admin`: Admin dashboard _(coming soon)_
+- `mobile`: React Native app
 
 ### Packages
 
 - `db`: Prisma client and database utilities
 - `eslint-config`: ESLint configurations
-- `prettier-config`: Prettier configurations 
+- `prettier-config`: Prettier configurations
 - `tsconfig`: TypeScript configurations

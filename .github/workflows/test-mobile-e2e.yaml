@@ -22,12 +22,9 @@ env:
   FONTAWESOME_NPM_AUTH_TOKEN: ${{ secrets.FONTAWESOME_NPM_AUTH_TOKEN }}
   POSTGRES_PRISMA_URL: postgresql://postgres:postgres@localhost:5432/test_db
   POSTGRES_URL_NON_POOLING: postgresql://postgres:postgres@localhost:5432/test_db
-  NEXT_PUBLIC_BASE_URL: http://localhost:3000
-  NEXTAUTH_SECRET: "test-secret"
-  GOOGLE_CLIENT_ID: "test-client-id"
-  GOOGLE_CLIENT_SECRET: "test-client-secret"
-  CLOUDINARY_KEY: "test-key"
-  CLOUDINARY_SECRET: "test-secret"
+  FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+  FIREBASE_CLIENT_EMAIL: ${{ secrets.FIREBASE_CLIENT_EMAIL }}
+  FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY }}
 
 jobs:
   e2e:

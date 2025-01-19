@@ -1,27 +1,18 @@
 import { z } from "zod";
 import { db } from "@cuurly/db";
 import admin from "../lib/firebase";
-import { publicProcedure } from "../trpc";
+import { authenticatedProcedure, publicProcedure } from "../trpc";
 
 export default {
-  register: publicProcedure
+  register: authenticatedProcedure
     .input(
       z.object({
         fcmToken: z.string(),
         oldFcmToken: z.string().optional(),
-        // TODO for testing purposes only - remove this
-        testUserId: z.string().optional(),
       }),
     )
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     .mutation(async ({ ctx, input }) => {
-      // TODO: add userId to trpc context
-      // const userId = ctx.userId || input.testUserId;
-      const userId = input.testUserId;
-
-      if (!userId) {
-        throw new Error("No user ID provided");
-      }
+      const { userId } = ctx;
 
       if (input.oldFcmToken) {
         await db.device.deleteMany({
@@ -61,7 +52,6 @@ export default {
       }),
     )
     .mutation(async ({ input }) => {
-      console.log("sendTestNotification input", input);
       // get all device tokens from the database
       const devices = await db.device.findMany({
         select: {

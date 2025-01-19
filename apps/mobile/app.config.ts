@@ -25,6 +25,13 @@ export default {
       },
       infoPlist: {
         UIBackgroundModes: ["remote-notification"],
+        CFBundleURLTypes: [
+          {
+            CFBundleURLSchemes: [
+              "com.googleusercontent.apps.424852899507-j29rbkmagm9gdq8a84iqblaom6ove9o3",
+            ],
+          },
+        ],
       },
     },
     android: {
@@ -72,6 +79,7 @@ export default {
       ],
       "@react-native-firebase/app",
       "@react-native-firebase/messaging",
+      "expo-secure-store",
     ],
     experiments: {
       typedRoutes: true,

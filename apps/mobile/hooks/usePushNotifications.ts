@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Alert, Platform, PermissionsAndroid, Clipboard } from "react-native";
+import { Platform, PermissionsAndroid } from "react-native";
 import messaging, {
   FirebaseMessagingTypes,
 } from "@react-native-firebase/messaging";
@@ -9,10 +9,8 @@ import logger from "@/utils/logger";
 import { api } from "@/utils/api";
 
 const FCM_TOKEN_STORAGE_KEY = "@fcm_token";
-// TODO: remove this after authentication is implemented
-const TEST_USER_ID = "873e5b41-825a-410b-852c-7384994c5dd8";
 
-const usePushNotifications = () => {
+const usePushNotifications = (userId: string | undefined) => {
   const [isInitialised, setisInitialised] = useState(false);
   const registerDevice = api.device.register.useMutation();
 
@@ -68,15 +66,21 @@ const usePushNotifications = () => {
     });
   };
 
+  const registerDeviceToken = async (token: string, oldToken?: string) => {
+    if (!userId) return;
+
+    await registerDevice.mutateAsync({
+      fcmToken: token,
+      oldFcmToken: oldToken,
+    });
+  };
+
   useEffect(() => {
-    const initialize = async () => {
+    const initialise = async () => {
       try {
         const cachedToken = await AsyncStorage.getItem(FCM_TOKEN_STORAGE_KEY);
         if (cachedToken) {
-          await registerDevice.mutateAsync({
-            fcmToken: cachedToken,
-            testUserId: TEST_USER_ID,
-          });
+          await registerDeviceToken(cachedToken);
         }
       } catch (error) {
         logger.error("Failed to load cached FCM token", error as Error, {
@@ -98,31 +102,8 @@ const usePushNotifications = () => {
       try {
         const token = await messaging().getToken();
 
-        await registerDevice.mutateAsync({
-          fcmToken: token,
-          testUserId: TEST_USER_ID,
-        });
-
-        // TODO: remove this after api is implemented to register device in db
-        Alert.alert("FCM Token", token, [
-          {
-            text: "Copy Token",
-            onPress: async () => {
-              await Clipboard.setString(token);
-              Alert.alert("Copied!", "Token has been copied to clipboard");
-            },
-          },
-          {
-            text: "OK",
-            style: "cancel",
-          },
-        ]);
-
+        await registerDeviceToken(token);
         await AsyncStorage.setItem(FCM_TOKEN_STORAGE_KEY, token);
-        await registerDevice.mutateAsync({
-          fcmToken: token,
-          testUserId: TEST_USER_ID,
-        });
       } catch (error) {
         logger.error("Failed to get FCM token", error as Error, {
           additionalContext: {
@@ -149,10 +130,7 @@ const usePushNotifications = () => {
                 FCM_TOKEN_STORAGE_KEY,
               );
               await AsyncStorage.setItem(FCM_TOKEN_STORAGE_KEY, newToken);
-              await registerDevice.mutateAsync({
-                fcmToken: newToken,
-                oldFcmToken: oldToken ?? undefined,
-              });
+              await registerDeviceToken(newToken, oldToken);
             } catch (error) {
               logger.error("Failed to update device token", error as Error, {
                 additionalContext: {
@@ -180,7 +158,7 @@ const usePushNotifications = () => {
       }
     };
 
-    initialize();
+    initialise();
   }, []);
 
   return { isInitialised };

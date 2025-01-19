@@ -1,11 +1,14 @@
-import { publicProcedure, router } from "../trpc";
+import { router } from "../trpc";
 import userRouter from "./user";
 import deviceRouter from "./device";
+import authRouter from "./auth";
+import postRouter from "./post";
 
 export const appRouter = router({
-  greeting: publicProcedure.query(() => "Hello World"),
+  auth: authRouter,
   user: userRouter,
   device: deviceRouter,
+  post: postRouter,
 });
 
 export type AppRouter = typeof appRouter;

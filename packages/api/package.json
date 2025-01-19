@@ -16,6 +16,7 @@
     "@cuurly/tsconfig": "workspace:*",
     "@trpc/server": "11.0.0-rc.682",
     "firebase-admin": "^13.0.2",
+    "jsonwebtoken": "^9.0.2",
     "superjson": "^2.2.2",
     "zod": "^3.24.1"
   },

@@ -1,11 +1,13 @@
 import usePushNotifications from "@/hooks/usePushNotifications";
 
-export default function PushNotificationInitializer() {
-  const { isInitialised } = usePushNotifications();
+type Props = {
+  userId?: string;
+};
 
-  if (!isInitialised) {
-    return null;
-  }
+const PushNotificationInitialiser = ({ userId }: Props) => {
+  usePushNotifications(userId);
 
   return null;
-}
+};
+
+export default PushNotificationInitialiser;

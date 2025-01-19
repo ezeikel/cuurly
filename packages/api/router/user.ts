@@ -1,16 +1,27 @@
 import { db } from "@cuurly/db";
-import { publicProcedure } from "../trpc";
+import { authenticatedProcedure } from "../trpc";
 
 export default {
-  current: publicProcedure.query(
-    async () =>
-      // if (!ctx.userId) return null;
+  current: authenticatedProcedure.query(async ({ ctx }) => {
+    if (!ctx.userId) return null;
 
-      // TODO: add userId to trpc context
-      db.user.findFirst(),
-
-    // return db.user.findFirst({
-    //   where: { id: ctx.userId },
-    // });
-  ),
+    return db.user.findUnique({
+      where: { id: ctx.userId },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        username: true,
+        profile: {
+          select: {
+            picture: {
+              select: {
+                url: true,
+              },
+            },
+          },
+        },
+      },
+    });
+  }),
 };

@@ -73,7 +73,10 @@ onlineManager.setEventListener((setOnline) =>
   }),
 );
 
-export const TRPCProvider = (props: { children: React.ReactNode }) => {
+export const TRPCProvider = (props: {
+  children: React.ReactNode;
+  getAuthToken: () => Promise<string | null>;
+}) => {
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -85,7 +88,31 @@ export const TRPCProvider = (props: { children: React.ReactNode }) => {
         },
       }),
   );
-  const trpcClient = useMemo(() => client({}), []);
+  const trpcClient = useMemo(
+    () =>
+      api.createClient({
+        links: [
+          loggerLink({
+            enabled: (opts) =>
+              process.env.NODE_ENV === "development" ||
+              (opts.direction === "down" && opts.result instanceof Error),
+            colorMode: "ansi",
+          }),
+          httpBatchLink({
+            url: `${getBaseUrl()}/api/trpc`,
+            transformer: superjson,
+            async headers() {
+              const token = await props.getAuthToken();
+              return {
+                Authorization: token ? `Bearer ${token}` : "",
+                "x-trpc-source": "expo-react",
+              };
+            },
+          }),
+        ],
+      }),
+    [props.getAuthToken],
+  );
 
   return (
     <api.Provider client={trpcClient} queryClient={queryClient}>
@@ -102,7 +129,7 @@ export const TRPCProvider = (props: { children: React.ReactNode }) => {
       </PersistQueryClientProvider>
     </api.Provider>
   );
-}
+};
 
 export const useCustomHeaders = () => useContext(CustomHeaderContext);
 

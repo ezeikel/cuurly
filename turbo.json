@@ -1,6 +1,9 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalDependencies": [".env"],
+  "globalDependencies": [
+    "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID",
+    "EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID"
+  ],
   "ui": "tui",
   "tasks": {
     "build": {
@@ -77,6 +80,8 @@
     "EXPO_PUBLIC_ENVIRONMENT",
     "FIREBASE_PROJECT_ID",
     "FIREBASE_CLIENT_EMAIL",
-    "FIREBASE_PRIVATE_KEY"
+    "FIREBASE_PRIVATE_KEY",
+    "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID",
+    "EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID"
   ]
 }

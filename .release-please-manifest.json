@@ -1,5 +1,5 @@
 {
-  "apps/mobile": "0.1.0",
+  "apps/mobile": "0.1.1",
   "apps/web": "0.1.0",
   "packages/db": "0.1.0",
   "configs/eslint-config": "0.1.0",

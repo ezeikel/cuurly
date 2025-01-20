@@ -1,30 +1,19 @@
-import { Text, View } from "react-native";
+import { View } from "react-native";
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { GoogleSigninButton } from "@react-native-google-signin/google-signin";
 import { useAuthContext } from "@/contexts/auth";
-import { useEffect, useState } from "react";
+import logger from "@/utils/logger";
 
 const AuthScreen = () => {
   const { signIn } = useAuthContext();
-  const { getAuthToken } = useAuthContext();
-  const [authToken, setAuthToken] = useState<string | null>(null);
-
-  useEffect(() => {
-    const checkToken = async () => {
-      const token = await getAuthToken();
-      setAuthToken(token);
-    };
-
-    checkToken();
-  }, []);
 
   const handleSignIn = async () => {
     try {
       await signIn();
       router.replace("/");
-    } catch (error) {
-      console.error("Sign in error:", error);
+    } catch (error: unknown) {
+      logger.error("Sign in error:", error as Error);
     }
   };
 
@@ -36,7 +25,6 @@ const AuthScreen = () => {
           color={GoogleSigninButton.Color.Light}
           onPress={handleSignIn}
         />
-        <Text>Current auth token: {authToken}</Text>
       </View>
     </SafeAreaView>
   );

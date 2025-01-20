@@ -46,10 +46,10 @@ export const AuthContext = createContext<AuthContextType>({
 });
 
 export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
+  const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [user, setUser] = useState<AuthUser | null>(null);
-  const router = useRouter();
   const [authToken, setAuthToken] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
@@ -66,54 +66,6 @@ export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
       offlineAccess: true, // for refresh token
     });
   };
-
-  useEffect(() => {
-    configureGoogleSignIn();
-  }, []);
-
-  const checkAuth = async () => {
-    try {
-      setIsLoading(true);
-      const authToken = await SecureStore.getItemAsync("authToken");
-
-      if (!authToken) {
-        setIsAuthenticated(false);
-        router.replace("/sign-in");
-        return;
-      }
-
-      if (currentUserQuery.isLoading) {
-        return;
-      }
-
-      if (currentUserQuery.error) {
-        throw new Error("Failed to validate token");
-      }
-
-      if (currentUserQuery.data) {
-        setUser(currentUserQuery.data);
-        setIsAuthenticated(true);
-        router.replace("/");
-      } else {
-        throw new Error("User not found");
-      }
-    } catch (error: unknown) {
-      logger.error("Error checking authentication:", error as Error);
-      await SecureStore.deleteItemAsync("authToken");
-      setIsAuthenticated(false);
-      router.replace("/sign-in");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    checkAuth();
-
-    // periodic token validation (every 10 minutes)
-    const intervalId = setInterval(checkAuth, 10 * 60 * 1000);
-    return () => clearInterval(intervalId);
-  }, [authToken]);
 
   const signIn = async () => {
     try {
@@ -137,8 +89,8 @@ export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
         },
       });
 
-      // store token
       await SecureStore.setItemAsync("authToken", result.token);
+      setAuthToken(result.token);
       setUser(result.user);
       setIsAuthenticated(true);
       router.replace("/");
@@ -165,6 +117,7 @@ export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
       await SecureStore.deleteItemAsync("authToken");
       setUser(null);
       setIsAuthenticated(false);
+      setAuthToken(null);
       router.replace("/sign-in");
 
       // clear all queries
@@ -179,12 +132,64 @@ export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
   const getAuthToken = async () => SecureStore.getItemAsync("authToken");
 
   useEffect(() => {
+    configureGoogleSignIn();
+  }, []);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        setIsLoading(true);
+        const storedToken = await getAuthToken();
+
+        if (!storedToken) {
+          setIsAuthenticated(false);
+          setAuthToken(null);
+          router.replace("/sign-in");
+          return;
+        }
+
+        // check if user is authenticated
+        const userResult = await currentUserQuery.refetch();
+
+        if (userResult.data) {
+          setUser(userResult.data);
+          setAuthToken(storedToken);
+          setIsAuthenticated(true);
+          router.replace("/");
+        } else {
+          throw new Error("User not found");
+        }
+      } catch (error: unknown) {
+        logger.error("Error checking authentication:", error as Error);
+        await SecureStore.deleteItemAsync("authToken");
+        setAuthToken(null);
+        setIsAuthenticated(false);
+        router.replace("/sign-in");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkAuth();
+
+    // periodic token validation (every 10 minutes)
+    const intervalId = setInterval(checkAuth, 10 * 60 * 1000);
+    return () => clearInterval(intervalId);
+  }, []);
+
+  useEffect(() => {
     const getToken = async () => {
       const token = await getAuthToken();
       setAuthToken(token);
     };
     getToken();
   }, []);
+
+  useEffect(() => {
+    if (authToken) {
+      SecureStore.setItemAsync("authToken", authToken);
+    }
+  }, [authToken]);
 
   return (
     <AuthContext.Provider
